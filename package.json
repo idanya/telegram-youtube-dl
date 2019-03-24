@@ -1,0 +1,36 @@
+{
+  "name": "telegram-youtube-dl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node -r tsconfig-paths/register ./lib/bot.ts",
+    "start": "NODE_PATH=dist/ node ./dist/bot.js",
+    "prod": "npm run build && npm start",
+    "test": "TESTS_MODE=long jest",
+    "short-test": "TESTS_MODE=short jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.16.1",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "form-data": "^2.3.3",
+    "uuid": "^3.3.2",
+    "ytdl-core": "^0.29.1"
+  },
+  "devDependencies": {
+    "@types/form-data": "^2.2.1",
+    "@types/jest": "^24.0.11",
+    "@types/node": "^11.12.2",
+    "axios": "^0.18.0",
+    "jest": "^24.5.0",
+    "ts-jest": "^24.0.0",
+    "ts-mockito": "^2.3.1",
+    "ts-node": "^8.0.3",
+    "tsconfig-paths": "^3.8.0",
+    "typescript": "^3.3.3333"
+  }
+}
