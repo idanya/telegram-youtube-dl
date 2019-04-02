@@ -6,6 +6,7 @@
   - [Run types](#run-types)
 - [Bot commands](#bot-commands)
 - [Testing](#testing)
+- [Docker](#docker)
 ## Setting up
 Before you can run a Telegram bot, you have to create it and get it's API token. To do that, open Telegram and talk to 
 [@Botfather](https://t.me/botfather) (it's a bot of course). 
@@ -30,3 +31,8 @@ The app expects `TELEGRAM_TOKEN` environment variable to contain the bot token. 
 ## Testing
 `npm run test` - run all tests </br>
 `npm run short-test` - skip integration tests
+
+## Docker
+After building the Dockerfile, run with your token as ENV variable.
+
+`docker run -d -e TELEGRAM_TOKEN=<your bot token> <image name>`
