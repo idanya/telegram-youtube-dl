@@ -1,1 +1,0 @@
-export const testConditional: jest.It = process.env.TESTS_MODE == "short" ? it.skip : it;

@@ -24,4 +24,5 @@ const processor = new MessageProcessor(telegramApi, commands);
 
 puller.getUpdates(update => {
     processor.Process(update);
+    return false;
 });

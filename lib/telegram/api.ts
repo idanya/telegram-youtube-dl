@@ -36,13 +36,14 @@ export class TelegramAPI {
     }
 
     private doPost<R, T>(method: string, data: R): Promise<TelegramResponse<T>> {
-        console.log(`doPost - ${method}`)
+        const url = this.createMethodUrl(method);
+        console.log(`doPost - ${url}`)
         const headers = {
             'Content-Type': 'application/json',
         }
 
         return new Promise<TelegramResponse<T>>((resolve, reject) => {
-            axios.post(this.createMethodUrl(method), data, { headers: headers })
+            axios.post(url, data, { headers: headers })
                 .then((response: AxiosResponse) => {
                     resolve(response.data);
                 })

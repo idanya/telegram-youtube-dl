@@ -30,7 +30,6 @@ The app expects `TELEGRAM_TOKEN` environment variable to contain the bot token. 
 
 ## Testing
 `npm run test` - run all tests </br>
-`npm run short-test` - skip integration tests
 
 ## Docker
 After building the Dockerfile, run with your token as ENV variable.

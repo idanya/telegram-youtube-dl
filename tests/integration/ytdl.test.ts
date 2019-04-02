@@ -1,9 +1,8 @@
 import * as ytdl from 'ytdl-core';
 import * as fs from "fs";
-import { testConditional } from '../config';
 
-describe("youtube-dl tests", () => {
-    testConditional("should download mp3", async (done) => {        
+describe.skip("youtube-dl tests", () => {
+    it("should download mp3", async (done) => {        
         const info = await ytdl.getInfo('http://www.youtube.com/watch?v=A02s8omM_hI');
         const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
         

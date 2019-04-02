@@ -5,7 +5,6 @@ import { SendMessageRequest } from "telegram/entities/requests/send-messages";
 import { TelegramUser } from "telegram/entities/responses/get-updates";
 import { RemoteDownloader } from "adapters/downloader";
 import {mock, instance, when, anyString} from "ts-mockito";
-import { testConditional } from '../config';
 
 
 const tempDownloadDir = path.join(__dirname, 'downloadTemp');
@@ -52,7 +51,7 @@ describe("test YoutubeCommandHandler", () => {
         expect(request.text).toBe(message);
     }
 
-    testConditional("test invalid command", (done) => {
+    it("test invalid command", (done) => {
         const command: CommandHandlerInput = {
             from: fromUser,
             text: "/audio"
@@ -68,7 +67,7 @@ describe("test YoutubeCommandHandler", () => {
             })
     });
 
-    testConditional("test valid command", (done) => {
+    it("test valid command", (done) => {
         const command: CommandHandlerInput = {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=A02s8omM_hI",
@@ -87,7 +86,7 @@ describe("test YoutubeCommandHandler", () => {
             });
     });
 
-    testConditional("test invalid url", (done) => {
+    it("test invalid url", (done) => {
         const command: CommandHandlerInput = {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=nosuchthing",
