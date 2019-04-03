@@ -29,7 +29,7 @@ The app expects `TELEGRAM_TOKEN` environment variable to contain the bot token. 
 `/audio <video url>` - This will download the audio format of the video and send it to the requesting user. 
 
 ## Testing
-`npm run test` - run all tests </br>
+`npm test` - run all tests </br>
 
 ## Docker
 After building the Dockerfile, run with your token as ENV variable.
