@@ -37,6 +37,30 @@ describe("test api methods", () => {
             })
     });
 
+    it("test send message error flow", (done) => {
+        nock(API_HOST)
+            .filteringRequestBody(body => '*')
+            .post(`/bot${FAKE_TOKEN}/sendMessage`, "*")
+            .reply(401, {
+                ok: false,
+                result: {},
+            });
+
+        const request: SendMessageRequest = {
+            chat_id: 1,
+            text: "test",
+            parse_mode: "Markdown"
+        }
+        telegramApi.sendMessage(request)
+            .then(response => {
+                fail("should not get here");
+            })
+            .catch(error => {
+                expect(error).toContain("401");
+                done();
+            })
+    });
+
     it("test getme request", (done) => {
         const apiResponse: GetMeResponse = {
             first_name: "bot",

@@ -1,7 +1,6 @@
 
 import { GetUpdatesRequest } from "telegram/entities/requests/get-updates";
 import { TelegramAPI } from "telegram/api";
-import { SendMessageRequest } from "telegram/entities/requests/send-messages";
 
 const API_TOKEN = process.env.TELEGRAM_TOKEN;
 

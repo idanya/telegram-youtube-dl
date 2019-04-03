@@ -8,9 +8,12 @@ import { MessageProcessor } from "bot/message-processor";
 import { YoutubeCommandHandler } from "commands/youtube";
 import { YoutubeDownloader } from 'adapters/youtube';
 
-const API_TOKEN = process.env.TELEGRAM_TOKEN;
+if (process.env.TELEGRAM_TOKEN == undefined || process.env.TELEGRAM_TOKEN == "") {
+    console.log("Environment variable TELEGRAM_TOKEN is mandatory.");
+    process.exit(1);
+}
 
-const telegramApi = new TelegramAPI(API_TOKEN);
+const telegramApi = new TelegramAPI(process.env.TELEGRAM_TOKEN);
 const puller = new UpdatesPuller(telegramApi);
 const tempDownloadDir = path.join(__dirname, 'downloadTemp');
 const youtube = new YoutubeCommandHandler(tempDownloadDir, new YoutubeDownloader());

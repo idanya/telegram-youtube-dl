@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, { AxiosResponse, AxiosError, AxiosPromise } from 'axios';
 import { TelegramResponse } from 'telegram/entities/responses/response';
 import { GetMeResponse } from 'telegram/entities/responses/getme';
 import { GetUpdatesResponse, TelegramMessage } from 'telegram/entities/responses/get-updates';
@@ -20,38 +20,31 @@ export class TelegramAPI {
         return `${API_HOST}/bot${this.token}/${method}`;
     }
 
-    private doGet<T>(method: string): Promise<TelegramResponse<T>> {
-        console.log(`doGet - ${method}`);
-
+    private handleResponse<T>(requestPromise: AxiosPromise): Promise<TelegramResponse<T>> {
         return new Promise<TelegramResponse<T>>((resolve, reject) => {
-            axios.get(this.createMethodUrl(method))
-                .then((response: AxiosResponse) => {
-                    resolve(response.data);
-                })
-                .catch((error: AxiosError) => {
-                    console.log(error.message);
-                    reject(error.message);
-                });
-        })
-    }
-
-    private doPost<R, T>(method: string, data: R): Promise<TelegramResponse<T>> {
-        const url = this.createMethodUrl(method);
-        console.log(`doPost - ${url}`)
-        const headers = {
-            'Content-Type': 'application/json',
-        }
-
-        return new Promise<TelegramResponse<T>>((resolve, reject) => {
-            axios.post(url, data, { headers: headers })
-                .then((response: AxiosResponse) => {
-                    resolve(response.data);
-                })
+            requestPromise.then((response: AxiosResponse) => {
+                resolve(response.data);
+            })
                 .catch((error: AxiosError) => {
                     console.log(error.message);
                     reject(error.message);
                 });
         });
+    }
+
+    private doGet<T>(method: string): Promise<TelegramResponse<T>> {
+        console.log(`doGet - ${method}`);
+        return this.handleResponse<T>(axios.get(this.createMethodUrl(method)));
+    }
+
+    private doPost<R, T>(method: string, data: R): Promise<TelegramResponse<T>> {
+        const url = this.createMethodUrl(method);
+        console.log(`doPost - ${method}`)
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        return this.handleResponse<T>(axios.post(url, data, { headers: headers }));
     }
 
     private doFormDataPost<T>(method: string, data: FormData): Promise<TelegramResponse<T>> {
@@ -64,7 +57,7 @@ export class TelegramAPI {
                 })
                 .catch((error: AxiosError) => {
                     console.log(error.message);
-                    reject(null);
+                    reject(error.message);
                 });
         });
     }
@@ -81,7 +74,7 @@ export class TelegramAPI {
     public async sendMessage(request: SendMessageRequest): Promise<TelegramResponse<TelegramMessage>> {
         return await this.doPost<SendMessageRequest, TelegramMessage>('sendMessage', request);
     }
-Î
+
     public async sendAudio(request: UploadAudioRequest): Promise<TelegramResponse<TelegramMessage>> {
         let form = new FormData();
         form.append('chat_id', request.chat_id);
