@@ -19,6 +19,7 @@ export interface UploadImageRequest {
 export interface UploadAudioRequest {
     chat_id: number | string;
     audio: Stream;
-    caption?: string;
+    filename: string;
+    caption: string;
     parse_mode?: ParseMode;
 }

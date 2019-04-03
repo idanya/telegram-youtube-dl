@@ -4,16 +4,17 @@ import { CommandHandlerInput, HandlerResponse } from "domain/command-handlers";
 import { SendMessageRequest } from "telegram/entities/requests/send-messages";
 import { TelegramUser } from "telegram/entities/responses/get-updates";
 import { RemoteDownloader } from "adapters/downloader";
-import {mock, instance, when, anyString} from "ts-mockito";
-
+import { mock, instance, when, anyString } from "ts-mockito";
+import { Readable } from 'stream';
+import * as fs from 'fs';
 
 const tempDownloadDir = path.join(__dirname, 'downloadTemp');
 
 class fakeDownloader implements RemoteDownloader {
-    downloadAudioFile(url: string, outputPath: string): Promise<string> {
+    downloadAudioFile(url: string): Promise<Readable> {
         throw new Error("Method not implemented.");
     }
-} 
+}
 
 describe("test YoutubeCommandHandler", () => {
 
@@ -35,13 +36,15 @@ describe("test YoutubeCommandHandler", () => {
         }
     }
 
-    beforeEach(() => {            
+    beforeEach(() => {
         let mockedRemoteDownloader: RemoteDownloader = mock(fakeDownloader);
-        
-        when(mockedRemoteDownloader.downloadAudioFile("http://www.youtube.com/watch?v=A02s8omM_hI", anyString())).thenResolve("/aaa.mp3");
+
+
+        when(mockedRemoteDownloader.downloadAudioFile("http://www.youtube.com/watch?v=A02s8omM_hI"))
+            .thenResolve(fs.createReadStream(__filename));
         let remoteDownloader: RemoteDownloader = instance(mockedRemoteDownloader);
 
-        this.handler = new YoutubeCommandHandler(tempDownloadDir, remoteDownloader);                
+        this.handler = new YoutubeCommandHandler(tempDownloadDir, remoteDownloader);
         initUser();
     });
 
@@ -56,10 +59,10 @@ describe("test YoutubeCommandHandler", () => {
             from: fromUser,
             text: "/audio"
         };
-        
+
         this.handler.AudioDownload(command)
             .then(response => {
-                validateTextResponse(response, "invalid command");                
+                validateTextResponse(response, "invalid command");
                 done();
             })
             .catch(error => {
@@ -67,43 +70,30 @@ describe("test YoutubeCommandHandler", () => {
             })
     });
 
-    it("test valid command", (done) => {
+    it("test valid command", async () => {
         const command: CommandHandlerInput = {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=A02s8omM_hI",
             progressListener: (progress: HandlerResponse) => {
-                validateTextResponse(progress, "Downloading...");                
+                validateTextResponse(progress, "Downloading...");
             }
-        };    
-        
-        this.handler.AudioDownload(command)
-            .then(response => {
-                expect(response.getOutputType()).toEqual("AudioMessage");                
-                done();
-            })
-            .catch(error => {
-                fail("should not get here: err: " + error);
-            });
+        };
+
+        const response = await this.handler.AudioDownload(command);
+        expect(response.getOutputType()).toEqual("AudioMessage");
     });
 
-    it("test invalid url", (done) => {
+    it("test invalid url", async () => {
         const command: CommandHandlerInput = {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=nosuchthing",
             progressListener: (progress: HandlerResponse) => {
-                validateTextResponse(progress, "Downloading...");                
+                validateTextResponse(progress, "Downloading...");
             }
-        };    
-        
-        this.handler.AudioDownload(command)
-            .then(response => {
-                expect(response.getOutputType()).toEqual("TextMessage");                
-                done();
-            })
-            .catch(error => {
-                fail("should not get here: err: " + error);
-                done();
-            });
+        };
+
+        const response = await this.handler.AudioDownload(command);
+        expect(response.getOutputType()).toEqual("TextMessage");            
     });
 
 });

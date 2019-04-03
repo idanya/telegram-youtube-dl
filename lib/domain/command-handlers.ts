@@ -2,6 +2,7 @@ import { TelegramUser } from "telegram/entities/responses/get-updates";
 import { SendMessageRequest, ParseMode } from "telegram/entities/requests/send-messages";
 import { UploadAudioRequest } from "telegram/entities/requests/send-messages";
 import * as fs from "fs";
+import { Readable } from "stream";
 
 type HandlerOutputType = 'TextMessage' | 'AudioMessage';
 
@@ -35,16 +36,13 @@ export class HandlerResponse {
     }
 }
 
-export function CreateUploadAudioRequest(filePath: string, caption?: string, parse_mode: ParseMode = 'Markdown'): HandlerResponse {
+export function CreateUploadAudioRequest(readable: Readable, filename: string, caption: string, parse_mode: ParseMode = 'Markdown'): HandlerResponse {
     const request: UploadAudioRequest = {
         chat_id: null,
         caption: caption,
         parse_mode: parse_mode,
-        audio: null
-    }
-
-    if (fs.existsSync(filePath)) {
-        request.audio = fs.createReadStream(filePath)
+        audio: readable,
+        filename: filename
     }
 
     const response = new HandlerResponse();

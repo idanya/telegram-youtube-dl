@@ -39,7 +39,7 @@ export class TelegramAPI {
 
     private doPost<R, T>(method: string, data: R): Promise<TelegramResponse<T>> {
         const url = this.createMethodUrl(method);
-        console.log(`doPost - ${method}`)
+        console.log(`doPost - ${url}`)
         const headers = {
             'Content-Type': 'application/json',
         }
@@ -79,8 +79,10 @@ export class TelegramAPI {
         let form = new FormData();
         form.append('chat_id', request.chat_id);
         form.append('caption', request.caption);
-        form.append('audio', request.audio);
-        form.append('parse_mode', request.parse_mode);
+        form.append('audio', request.audio, request.filename);
+        form.append('parse_mode', request.parse_mode);        
+        
+        
 
         return await this.doFormDataPost<TelegramMessage>('sendAudio', form);
     }

@@ -1,26 +1,21 @@
 import * as ytdl from 'ytdl-core';
-import * as fs from "fs";
-import * as path from "path";
-import { v4 } from 'uuid';
-import { RemoteDownloader } from './downloader';
+import { RemoteDownloader, AudioMetadata } from './downloader';
+import { Readable } from 'stream';
 
 export class YoutubeDownloader implements RemoteDownloader {
 
-    public async downloadAudioFile(youtubeUrl: string, outputPath: string): Promise<string> {        
+    public async downloadAudioFile(youtubeUrl: string): Promise<AudioMetadata> {
         const info = await ytdl.getInfo(youtubeUrl);
-        console.log("got info: " + info);
+        console.log("got info");
         if (!info) {
             throw Error("failed to get video info");
         }
 
-        
-        console.log("creating: " + outputPath);
-        fs.mkdirSync(outputPath, { recursive: true });
+        const audioFormat = this.selectFormat(info);
 
-        const audioFormat = this.selectFormat(info);        
-
-        const savePath = path.join(outputPath, `${v4()}.${audioFormat.container}`);
-        return await this.downloadFormat(youtubeUrl, audioFormat, savePath);
+        const filename = `${info.title}.${audioFormat.container}`;
+        const readableStream = await this.downloadFormat(youtubeUrl, audioFormat);
+        return new AudioMetadata(readableStream, filename)
     }
 
     private selectFormat(info: ytdl.videoInfo): ytdl.videoFormat {
@@ -31,18 +26,13 @@ export class YoutubeDownloader implements RemoteDownloader {
         return audioFormats[0];
     }
 
-    private async downloadFormat(youtubeUrl: string, format: ytdl.videoFormat, outputPath: string): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            const savePath = path.join(outputPath, `${v4()}.${format.container}`);
+    private async downloadFormat(youtubeUrl: string, format: ytdl.videoFormat): Promise<Readable> {
+        const stream = ytdl(youtubeUrl, { format: format });
 
-            ytdl(youtubeUrl, { format: format })
-                .on("progress", (chuck_size, total_downloaded, total_exists) => {
-                    console.log(`total_downloaded: ${total_downloaded} - total_exists: ${total_exists}`);
-                    if (total_downloaded == total_exists) {
-                        resolve(savePath);
-                    }
-                })
-                .pipe(fs.createWriteStream(savePath));
+        stream.on("progress", (chuck_size, total_downloaded, total_exists) => {
+            console.log(`total_downloaded: ${total_downloaded} - total_exists: ${total_exists}`);
         });
+
+        return stream;
     }
 }
