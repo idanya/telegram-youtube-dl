@@ -113,6 +113,7 @@ describe("test api methods", () => {
             chat_id: 1,
             caption: "test",
             audio: readable,
+            filename: "test",
             parse_mode: "Markdown"
         }
 
