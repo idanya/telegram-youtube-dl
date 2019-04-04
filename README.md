@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/idanya/telegram-youtube-dl.svg?branch=master)](https://travis-ci.org/idanya/telegram-youtube-dl)
+
 **telegram-youtube-dl** - Telegram bot to download Youtube content.
 
 - [Setting up](#setting-up)
