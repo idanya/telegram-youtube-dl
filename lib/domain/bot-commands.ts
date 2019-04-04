@@ -12,8 +12,8 @@ interface CommandsHash {
 
 export class BotCommands {
     private commands: CommandsHash = {};
-        
-    public addCommand(command: string, handler: BotCommand): void {        
+
+    public addCommand(command: string, handler: BotCommand): void {
         this.commands[command] = handler;
     }
 
@@ -22,12 +22,12 @@ export class BotCommands {
             return this.commands[command].handler;
         }
 
-        for(const key in this.commands){
-            if (command.startsWith(key)){
+        for (const key in this.commands) {
+            if (command.startsWith(key)) {
                 return this.commands[key].handler;
             }
         }
-        
+
         return null;
     }
 
@@ -40,12 +40,9 @@ export class BotCommands {
     }
 
     public UserHelper = this.userHelper.bind(this);
-    private userHelper(input: CommandHandlerInput): Promise<HandlerResponse> {
-        return new Promise<HandlerResponse>((resolve,reject)=>{
-            let output = new HandlerResponse()
-            const messageText = `Available Commands:\n\n${this.getHelpCommands()}`;                    
-            resolve(CreateSendMessageRequest(messageText, ""));
-        });
+    private async userHelper(input: CommandHandlerInput): Promise<HandlerResponse> {
+        const messageText = `Available Commands:\n\n${this.getHelpCommands()}`;
+        return CreateSendMessageRequest(messageText, "");
     }
-        
+
 }

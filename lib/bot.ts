@@ -1,5 +1,3 @@
-import * as path from 'path';
-
 import { TelegramAPI } from "telegram/api";
 import { UpdatesPuller } from "bot/updates-puller";
 import { BotCommands } from "domain/bot-commands";
@@ -13,10 +11,13 @@ if (process.env.TELEGRAM_TOKEN == undefined || process.env.TELEGRAM_TOKEN == "")
     process.exit(1);
 }
 
+function processUpdates(update) {
+    processor.Process(update);
+    return false;
+};
+
 const telegramApi = new TelegramAPI(process.env.TELEGRAM_TOKEN);
-const puller = new UpdatesPuller(telegramApi);
-const tempDownloadDir = path.join(__dirname, 'downloadTemp');
-const youtube = new YoutubeCommandHandler(tempDownloadDir, new YoutubeDownloader());
+const youtube = new YoutubeCommandHandler(new YoutubeDownloader());
 
 const commands = new BotCommands();
 commands.addCommand('/start', { handler: startHandler, helpText: 'shows welcome message' });
@@ -24,8 +25,6 @@ commands.addCommand('/help', { handler: commands.UserHelper, helpText: 'shows he
 commands.addCommand('/audio', { handler: youtube.AudioDownload, helpText: 'download audio file' });
 
 const processor = new MessageProcessor(telegramApi, commands);
+const puller = new UpdatesPuller(telegramApi, processUpdates);
 
-puller.getUpdates(update => {
-    processor.Process(update);
-    return false;
-});
+puller.getUpdates();

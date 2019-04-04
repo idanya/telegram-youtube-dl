@@ -1,7 +1,6 @@
 import { TelegramUser } from "telegram/entities/responses/get-updates";
 import { SendMessageRequest, ParseMode } from "telegram/entities/requests/send-messages";
 import { UploadAudioRequest } from "telegram/entities/requests/send-messages";
-import * as fs from "fs";
 import { Readable } from "stream";
 
 type HandlerOutputType = 'TextMessage' | 'AudioMessage';

@@ -1,17 +1,16 @@
 import * as path from 'path';
-import { YoutubeCommandHandler } from "commands/youtube";
+import { YoutubeCommandHandler, DOWNLOADING_CONFIRM_MESSAGE } from "commands/youtube";
 import { CommandHandlerInput, HandlerResponse } from "domain/command-handlers";
 import { SendMessageRequest } from "telegram/entities/requests/send-messages";
 import { TelegramUser } from "telegram/entities/responses/get-updates";
-import { RemoteDownloader } from "adapters/downloader";
-import { mock, instance, when, anyString } from "ts-mockito";
-import { Readable } from 'stream';
+import { RemoteDownloader, AudioMetadata } from "adapters/downloader";
+import { mock, instance, when } from "ts-mockito";
 import * as fs from 'fs';
 
 const tempDownloadDir = path.join(__dirname, 'downloadTemp');
 
 class fakeDownloader implements RemoteDownloader {
-    downloadAudioFile(url: string): Promise<Readable> {
+    downloadAudioFile(url: string): Promise<AudioMetadata> {
         throw new Error("Method not implemented.");
     }
 }
@@ -38,13 +37,12 @@ describe("test YoutubeCommandHandler", () => {
 
     beforeEach(() => {
         let mockedRemoteDownloader: RemoteDownloader = mock(fakeDownloader);
-
-
+        
         when(mockedRemoteDownloader.downloadAudioFile("http://www.youtube.com/watch?v=A02s8omM_hI"))
-            .thenResolve(fs.createReadStream(__filename));
+            .thenResolve(new AudioMetadata(fs.createReadStream(__filename), "filename"));
         let remoteDownloader: RemoteDownloader = instance(mockedRemoteDownloader);
 
-        this.handler = new YoutubeCommandHandler(tempDownloadDir, remoteDownloader);
+        this.handler = new YoutubeCommandHandler(remoteDownloader);
         initUser();
     });
 
@@ -75,7 +73,7 @@ describe("test YoutubeCommandHandler", () => {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=A02s8omM_hI",
             progressListener: (progress: HandlerResponse) => {
-                validateTextResponse(progress, "Downloading...");
+                validateTextResponse(progress, DOWNLOADING_CONFIRM_MESSAGE);
             }
         };
 
@@ -88,7 +86,7 @@ describe("test YoutubeCommandHandler", () => {
             from: fromUser,
             text: "/audio http://www.youtube.com/watch?v=nosuchthing",
             progressListener: (progress: HandlerResponse) => {
-                validateTextResponse(progress, "Downloading...");
+                validateTextResponse(progress, DOWNLOADING_CONFIRM_MESSAGE);
             }
         };
 

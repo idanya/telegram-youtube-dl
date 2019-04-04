@@ -38,30 +38,18 @@ export class TelegramAPI {
     }
 
     private doPost<R, T>(method: string, data: R): Promise<TelegramResponse<T>> {
-        const url = this.createMethodUrl(method);
-        console.log(`doPost - ${url}`)
+        console.log(`doPost - ${method}`)
         const headers = {
             'Content-Type': 'application/json',
         }
 
-        return this.handleResponse<T>(axios.post(url, data, { headers: headers }));
+        return this.handleResponse<T>(axios.post(this.createMethodUrl(method), data, { headers: headers }));
     }
 
     private doFormDataPost<T>(method: string, data: FormData): Promise<TelegramResponse<T>> {
         console.log(`doFormDataPost - ${method}`)
-
-        return new Promise<TelegramResponse<T>>((resolve, reject) => {
-            axios.post(this.createMethodUrl(method), data, { headers: data.getHeaders() })
-                .then((response: AxiosResponse) => {
-                    resolve(response.data);
-                })
-                .catch((error: AxiosError) => {
-                    console.log(error.message);
-                    reject(error.message);
-                });
-        });
+        return this.handleResponse<T>(axios.post(this.createMethodUrl(method), data, { headers: data.getHeaders() }));
     }
-
 
     public async getMe(): Promise<TelegramResponse<GetMeResponse>> {
         return await this.doGet<GetMeResponse>('getMe');
@@ -80,9 +68,7 @@ export class TelegramAPI {
         form.append('chat_id', request.chat_id);
         form.append('caption', request.caption);
         form.append('audio', request.audio, request.filename);
-        form.append('parse_mode', request.parse_mode);        
-        
-        
+        form.append('parse_mode', request.parse_mode);
 
         return await this.doFormDataPost<TelegramMessage>('sendAudio', form);
     }

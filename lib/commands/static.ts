@@ -11,9 +11,7 @@ Try /help to see available commands.`;
 
 
 function startHandler(input: CommandHandlerInput): Promise<HandlerResponse> {
-    return new Promise<HandlerResponse>((resolve,reject)=>{                
-        resolve(CreateSendMessageRequest(startMessageBody(input.from)));
-    });    
+    return Promise.resolve(CreateSendMessageRequest(startMessageBody(input.from)));
 }
 
 export { startHandler };

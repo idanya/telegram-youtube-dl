@@ -9,13 +9,15 @@ const FAKE_TOKEN = "-token-";
 describe("test updates puller", () => {
     let puller: UpdatesPuller;
 
-    beforeEach(() => {
-        const telegramApi = new TelegramAPI(FAKE_TOKEN);
-        puller = new UpdatesPuller(telegramApi);
-    });
-
     it("test getting updates", (done) => {
         expect.assertions(1);
+
+        const telegramApi = new TelegramAPI(FAKE_TOKEN);
+        puller = new UpdatesPuller(telegramApi, ((message: TelegramMessage) => {
+            expect(message.text).toBe("test");
+            done();
+            return true;
+        }));
 
         nock(API_HOST)
             .filteringRequestBody(body => '*')
@@ -32,10 +34,6 @@ describe("test updates puller", () => {
                 }],
             });
 
-        puller.getUpdates(((message: TelegramMessage) => {
-            expect(message.text).toBe("test");
-            done();
-            return true;
-        }));
+        puller.getUpdates();
     });
 });
